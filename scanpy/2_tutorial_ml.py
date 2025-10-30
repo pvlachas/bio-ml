@@ -14,7 +14,6 @@ Z -> C
 - The latent variable Z alone explains cell-type class C.
 
 """
-import gdown
 import torch
 import torch.nn as nn
 import pyro
@@ -139,15 +138,6 @@ class CVAE(nn.Module):
 
             pyro.sample("latent", dist.Normal(z_mu, z_var).to_event(1))
 
-
-
-
-
-
-
-"""
-
-"""
 
 
 
