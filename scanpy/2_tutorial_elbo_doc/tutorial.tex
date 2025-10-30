@@ -1,0 +1,136 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{Step by Step Derivation of the Evidence Lower Bound}
+\author{Tutorial Notes}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+Let \(X\) be observed data. Let \(Z\) be latent variables. Let \(B\) be known covariates such as batch indicators. The generative model is
+\[
+p_\theta(X,Z \mid B) \;=\; p(Z)\, p_\theta(X \mid Z,B),
+\]
+with parameters \(\theta\). Our goal is to learn \(\theta\) by maximizing the conditional log evidence
+\[
+\log p_\theta(X \mid B) \;=\; \log \int p_\theta(X,Z \mid B)\, dZ.
+\]
+The integral is usually intractable when \(Z\) is high dimensional.
+
+\section{Introduce a variational posterior}
+Pick a tractable distribution \(q_\phi(Z \mid X,B)\) with parameters \(\phi\). Multiply and divide inside the integral by this distribution
+\begin{align*}
+\log p_\theta(X \mid B)
+&= \log \int p_\theta(X,Z \mid B)\, dZ
+= \log \int q_\phi(Z \mid X,B)\, \frac{p_\theta(X,Z \mid B)}{q_\phi(Z \mid X,B)}\, dZ \\
+&= \log\, \mathbb{E}_{q_\phi(Z \mid X,B)}\!\left[ \frac{p_\theta(X,Z \mid B)}{q_\phi(Z \mid X,B)} \right].
+\end{align*}
+
+\section{Apply Jensen inequality}
+The logarithm is concave. Jensen inequality gives
+\begin{align*}
+\log p_\theta(X \mid B)
+&\ge \mathbb{E}_{q_\phi(Z \mid X,B)}\!\left[ \log \frac{p_\theta(X,Z \mid B)}{q_\phi(Z \mid X,B)} \right] \\
+&= \mathbb{E}_{q_\phi}\!\left[ \log p_\theta(X,Z \mid B) \right] \;-\; \mathbb{E}_{q_\phi}\!\left[\log q_\phi(Z \mid X,B)\right].
+\end{align*}
+Define this expectation as the evidence lower bound
+\[
+\mathcal{L}_{\text{ELBO}}(\theta,\phi)
+\;\equiv\;
+\mathbb{E}_{q_\phi}\!\left[ \log p_\theta(X,Z \mid B) \right]
+- \mathbb{E}_{q_\phi}\!\left[\log q_\phi(Z \mid X,B)\right].
+\]
+
+\section{Expand the model joint}
+Use the factorization \(p_\theta(X,Z \mid B)=p(Z)\,p_\theta(X \mid Z,B)\)
+\begin{align*}
+\mathcal{L}_{\text{ELBO}}(\theta,\phi)
+&= \mathbb{E}_{q_\phi}\!\left[ \log p_\theta(X \mid Z,B) \right]
++ \mathbb{E}_{q_\phi}\!\left[ \log p(Z) \right]
+- \mathbb{E}_{q_\phi}\!\left[ \log q_\phi(Z \mid X,B) \right].
+\end{align*}
+Recognize the Kullback–Leibler divergence
+\[
+\mathrm{KL}\!\big(q_\phi(Z \mid X,B)\,\|\,p(Z)\big)
+= \mathbb{E}_{q_\phi}\!\left[ \log q_\phi(Z \mid X,B) - \log p(Z) \right].
+\]
+Hence the ELBO can be written as
+\[
+\boxed{
+\mathcal{L}_{\text{ELBO}}(\theta,\phi)
+= \mathbb{E}_{q_\phi(Z \mid X,B)}\!\left[ \log p_\theta(X \mid Z,B) \right]
+- \mathrm{KL}\!\big(q_\phi(Z \mid X,B)\,\|\,p(Z)\big).
+}
+\]
+
+\section{Identity that links ELBO to the true evidence}
+Start from the divergence between the variational and true posteriors
+\[
+\mathrm{KL}\!\big(q_\phi(Z \mid X,B)\,\|\,p_\theta(Z \mid X,B)\big)
+= \mathbb{E}_{q_\phi}\!\left[\log q_\phi(Z \mid X,B) - \log p_\theta(Z \mid X,B)\right].
+\]
+Use Bayes rule \(p_\theta(Z \mid X,B)=\tfrac{p_\theta(X,Z \mid B)}{p_\theta(X \mid B)}\) to get
+\begin{align*}
+\mathrm{KL}&\!\big(q_\phi(Z \mid X,B)\,\|\,p_\theta(Z \mid X,B)\big) \\
+&= \mathbb{E}_{q_\phi}\!\left[\log q_\phi(Z \mid X,B) - \log p_\theta(X,Z \mid B)\right] + \log p_\theta(X \mid B).
+\end{align*}
+Rearrange to obtain the key decomposition
+\[
+\boxed{
+\log p_\theta(X \mid B)
+= \mathcal{L}_{\text{ELBO}}(\theta,\phi)
++ \mathrm{KL}\!\big(q_\phi(Z \mid X,B)\,\|\,p_\theta(Z \mid X,B)\big).
+}
+\]
+The divergence is nonnegative. Therefore the ELBO is a lower bound on the log evidence. Maximizing the ELBO tightens the bound and moves the variational posterior closer to the true posterior.
+
+\section{Observed labels as an auxiliary head}
+If the model also generates labels \(C\) from \(Z\) with \(p_\theta(C \mid Z)\) and labels are observed, the joint becomes
+\[
+p_\theta(X,C,Z \mid B) \;=\; p(Z)\, p_\theta(C \mid Z)\, p_\theta(X \mid Z,B).
+\]
+Repeat the same steps to obtain
+\[
+\boxed{
+\mathcal{L}_{\text{ELBO}}(\theta,\phi)
+= \mathbb{E}_{q_\phi}\!\Big[ \log p_\theta(X \mid Z,B) \;+\; \log p_\theta(C \mid Z) \Big]
+- \mathrm{KL}\!\big(q_\phi(Z \mid X,B)\,\|\,p(Z)\big).
+}
+\]
+
+\section{Practical estimation of the expectation}
+The expectation with respect to \(q_\phi(Z \mid X,B)\) is computed by Monte Carlo. For a Gaussian encoder with diagonal covariance
+\[
+q_\phi(Z \mid X,B) = \mathcal{N}\!\big(\mu_\phi(X,B), \mathrm{diag}(\sigma_\phi^2(X,B))\big),
+\]
+use the reparameterization trick
+\[
+Z = \mu_\phi(X,B) + \sigma_\phi(X,B) \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0,I).
+\]
+This representation isolates the randomness in \(\epsilon\) and allows gradients to flow through \(\mu_\phi\) and \(\sigma_\phi\). The KL term has a closed form when \(p(Z)=\mathcal{N}(0,I)\)
+\[
+\mathrm{KL}\!\big(\mathcal{N}(\mu,\mathrm{diag}(\sigma^2))\,\|\,\mathcal{N}(0,I)\big)
+= \tfrac{1}{2}\sum_{k=1}^d \left( \mu_k^2 + \sigma_k^2 - \log \sigma_k^2 - 1 \right).
+\]
+The reconstruction term is the log likelihood under the decoder. For count data modeled with a Negative Binomial this is the corresponding log probability given the decoder outputs and dispersion.
+
+\section{Mini batches and sums over data}
+For independent data points \(\{x_i,b_i\}_{i=1}^N\), the total ELBO is a sum
+\[
+\mathcal{L}_{\text{ELBO}} = \sum_{i=1}^N
+\Big(
+\mathbb{E}_{q_\phi(z_i \mid x_i,b_i)}[\log p_\theta(x_i \mid z_i,b_i)]
+- \mathrm{KL}(q_\phi(z_i \mid x_i,b_i)\,\|\,p(z_i))
+\Big),
+\]
+possibly plus label terms. In practice one maximizes a stochastic estimate based on a mini batch and scales the reconstruction term to be an unbiased estimator of the full sum.
+
+\section{Summary}
+The ELBO arises by introducing a tractable posterior, applying Jensen, expanding the model joint, and recognizing a KL divergence. The bound decomposes into a reconstruction term and a regularization term. Maximizing the ELBO both increases the conditional evidence and reduces the gap to the true posterior.
+\end{document}
