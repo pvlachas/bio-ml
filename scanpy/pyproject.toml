@@ -25,6 +25,7 @@ pooch = "^1.8.2"
 igraph = "^1.0.0"
 scikit-image = "^0.25.2"
 pyro-ppl = "^1.9.1"
+scikit-misc = "^0.5.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4"
