@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Poetry / Virtualenv
+.venv/
+.env/
+
+# Ignore all local virtual/env folders anywhere
+**/.venv/
+**/.env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs / cache
+*.log
+*.tmp
+.cache/
+*.bak
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (optional, if large raw datasets)
+data/
+*.h5
+*.hdf5
+*.csv
+*.tsv
+*.parquet
+
+# Checkpoints / models
+checkpoints/
+models/
