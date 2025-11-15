@@ -25,7 +25,7 @@ def main():
 
     # Hyperparameters
     learning_rate = 1e-3
-    num_epochs = 2000
+    num_epochs = 10000
 
     optimizer_dsm = optim.Adam(model_dsm.parameters(), lr=learning_rate)
     data = sample_batch(10**4)
