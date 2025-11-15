@@ -18,6 +18,6 @@ def run(script):
     subprocess.run([sys.executable, script], check=True)
 
 if __name__ == "__main__":
-    # run("1_score_matching.py")
-    # run("2_sliced_score_matching.py")
+    run("1_score_matching.py")
+    run("2_sliced_score_matching.py")
     run("3_denoising_score_matching.py")
