@@ -7,27 +7,24 @@ the gradient of the log-density ∇ₓ log p(x). While classical score matching 
 denoising score matching work well in low-dimensional settings, Song and Ermon
 (2019) highlighted two fundamental issues when applying them to real datasets:
 
-    1) **Manifold inconsistency**
-       Real high-dimensional data (images, speech, audio etc.) often lie on a
-       lower-dimensional manifold. Classical score matching methods assume the
-       data distribution has full support in ℝⁿ, which is not true in practice.
-       As a consequence, score estimates become inconsistent.
+1) **Manifold inconsistency**
+Real high-dimensional data (images, speech, audio etc.) often lie on a
+lower-dimensional manifold. Classical score matching methods assume the
+data distribution has full support in ℝⁿ, which is not true in practice.
+As a consequence, score estimates become inconsistent.
 
-    2) **Low-density instability**
-       In regions where the data density is low, the score can be poorly
-       defined and Langevin sampling becomes unstable or slow to mix.
+2) **Low-density instability**
+In regions where the data density is low, the score can be poorly
+defined and Langevin sampling becomes unstable or slow to mix.
 
 To address both issues, NCSN introduces *noise-conditional* score learning:
 
-    • Instead of learning scores only on the empirical data distribution,
-      we *corrupt the data with Gaussian noise* at multiple scales.
-
-    • A single network learns *scores for many noise levels* simultaneously.
-
-    • This produces a family of smoothed densities, each easier to learn.
-
-    • During sampling, we gradually *anneal the noise from large → small*,
-      similar to diffusion models, moving from broad to sharp distributions.
+• Instead of learning scores only on the empirical data distribution,
+we *corrupt the data with Gaussian noise* at multiple scales.
+• A single network learns *scores for many noise levels* simultaneously.
+• This produces a family of smoothed densities, each easier to learn.
+• During sampling, we gradually *anneal the noise from large → small*,
+similar to diffusion models, moving from broad to sharp distributions.
 
 This idea laid the foundation for modern diffusion models (DDPMs, score SDEs).
 
@@ -47,7 +44,7 @@ from sklearn.datasets import make_swiss_roll
 # 1. Dataset utilities
 # -------------------------------------------------------------------
 
-def sample_swiss_roll(n=10_000, noise=1.0):
+def sample_swiss_roll(n=10000, noise=1.0):
     """Sample 2D Swiss Roll points for toy score-based experiments."""
     x, _ = make_swiss_roll(n, noise=noise)
     return x[:, [0, 2]] / 10.0  # keep 2 dims for visualization
@@ -67,16 +64,16 @@ plt.show()
 # -------------------------------------------------------------------
 """
 Recall denoising score matching (Vincent 2011):
-    We perturb each sample x with Gaussian noise σ,
-    and the optimal score estimator satisfies:
+We perturb each sample x with Gaussian noise σ,
+and the optimal score estimator satisfies:
 
-      s*(x̃) = - 1/σ² ⋅ (x̃ - x)
+ s*(x̃) = - 1/σ² ⋅ (x̃ - x)
 
-NCSN generalizes this by training *one model over many noise levels*.
+NCSN generalizes this by training one model over many noise levels.
 We sample a noise level σ_k from a geometric ladder
 σ₁ > σ₂ > ... > σ_K and train:
 
-    L = E_k E_{qσ_k(x̃|x)} [ σ_k^α * || sθ(x̃, k) + (x̃ − x)/σ_k² ||² ]
+L = E_k E_{qσ_k(x̃|x)} [ σ_k^α * || sθ(x̃, k) + (x̃ − x)/σ_k² ||² ]
 
 The σ_k^α term (: anneal_power) balances contributions across scales.
 """
@@ -116,9 +113,8 @@ def anneal_dsm_score_estimation(model, samples, labels, sigmas, anneal_power=2.0
 # -------------------------------------------------------------------
 
 """
-We require the model to understand the *noise scale*. We pass an embedding of the
-noise level index, and each layer multiplies activations by a learned scale.
-
+We require the model to understand the *noise scale*.
+We pass an embedding of the noise level index, and each layer multiplies activations by a learned scale.
 This "FiLM"-style conditioning is essential in original NCSN.
 """
 
@@ -191,10 +187,8 @@ for t in range(5000):
 # -------------------------------------------------------------------
 """
 We visualize the learned score field at:
-
-    • random noise levels (mixture)
-    • a specific noise level (e.g., σ₁ or σ_last)
-
+• random noise levels (mixture)
+• a specific noise level (e.g., σ₁ or σ_last)
 This lets us see how the field changes across noise scales.
 """
 

@@ -20,9 +20,9 @@ of the jacobian tr(gradient_x F(x)).
 Indeed, the computation of the Jacobian is a O(N^2 + N) operation, 
 thus not being suitable for high-dimensional problems, even with the optimized solution
 proposed in the previous code.
-More recently, Song et al. [ 7 ] (sliced score matching) proposed to use random 
+Sliced score matching is proposed to use random 
 projections to approximate the computation of tr(gradient_x F(x)). 
- """
+"""
 def sliced_score_matching(model, samples):
     samples.requires_grad_(True)
     # Construct random vectors
@@ -40,15 +40,16 @@ def sliced_score_matching(model, samples):
 
 # Denoising score matching
 """
-Originally, the notion of denoising score matching was discussed by Vincent
- in the context of denoising auto-encoders.
- In that case, this allows to completely remove the use of the gradient_x F_theta(x)
- in the  computation of score matching.
- To do so, we can first corrupt the input point x with a given noise vector, leading 
- to a distribution q_sigma (x_tilde | x).
- Then, score matching can be used to estimate the score of this perturbed data distribution.
- It has been shown that the optimal network that approximates 
- can be found by minimizing the denoising score matching objective (see doc).
+Originally, the notion of denoising score matching was discussed by Vincent in the 
+context of denoising auto-encoders.
+In that case, this allows to completely remove the use of the gradient_x F_theta(x) 
+in the  computation of score matching. 
+To do so, we can first corrupt the input point x with a given noise vector, leading 
+to a distribution q_sigma (x_tilde | x). 
+Then, score matching can be used to estimate the score of this perturbed data 
+distribution.
+It has been shown that the optimal network that approximates  can be found by 
+minimizing the denoising score matching objective (see doc).
 """
 def denoising_score_matching(scorenet, samples, sigma=0.01):
     perturbed_samples = samples + torch.randn_like(samples) * sigma

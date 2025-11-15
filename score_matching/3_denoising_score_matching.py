@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -6,8 +8,10 @@ from data import sample_batch
 from losses import denoising_score_matching
 from utils import get_device, ensure_fig_dir, plot_gradients
 
+FIG_DIR = Path("./figures_denoising_score_matching")
+
 def main():
-    ensure_fig_dir()
+    ensure_fig_dir(FIG_DIR)
     device = get_device()
 
     # Our approximation model
@@ -35,7 +39,7 @@ def main():
         optimizer_dsm.step()
         print(f"Epoch {t}: loss = {loss.item():.4f}")
 
-    plot_gradients(model_dsm, data, device, "./figures/gradients_denoising_score_matching.png")
+    plot_gradients(model_dsm, data, device, str(FIG_DIR / "gradients_denoising_score_matching.png"))
 
 if __name__ == "__main__":
     main()

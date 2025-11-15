@@ -1,8 +1,8 @@
 import os
+import torch.autograd as autograd
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
-import torch.autograd as autograd
 
 def get_device():
     # check device availability
@@ -46,8 +46,9 @@ def jacobian(f, x):
     jacobian = torch.stack(jacobian, dim=2).requires_grad_()
     return jacobian
 
-def plot_gradients(model, data, device, fpath):
-    ensure_fig_dir()
+def plot_gradients(model, data, device, fpath=None, save=True, close=True):
+    """Plot the gradient field of the model over the data"""
+    # Create a grid of points
     xgrid = np.linspace(-1.5, 2.0, 50)
     ygrid = np.linspace(-1.5, 2.0, 50)
     xx = np.stack(np.meshgrid(xgrid, ygrid), axis=-1).reshape(-1, 2)
@@ -61,13 +62,10 @@ def plot_gradients(model, data, device, fpath):
     plt.quiver(*xx.T, *scores_log1p.T, width=0.002, color='white')
     plt.xlim(-1.5, 2.0)
     plt.ylim(-1.5, 2.0)
-    plt.savefig(fpath)
-    plt.close()
-
-# ---- Modular helpers ----
-import numpy as np
-import matplotlib.pyplot as plt
-import torch
+    if save and fpath is not None:
+        plt.savefig(fpath)
+    if close:
+        plt.close()
 
 def run_sampling(model, x0, device, fn_sample):
     """Generate samples from a starting point"""
@@ -102,9 +100,10 @@ def plot_all_trajectories(
     fn_run_sampling,
 ):
     """Plot gradients and multiple trajectories"""
-    ensure_fig_dir()
     # Plot gradient field first
-    plot_gradients(model, data, device, figname.replace(".png", "_gradients_tmp.png"))
+    plot_gradients(
+        model, data, device, save=False, close=True
+    )
     # Overlay trajectories on the same field
     # Recreate the gradient field to keep consistent background:
     xgrid = np.linspace(-1.5, 2.0, 50)

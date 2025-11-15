@@ -8,6 +8,7 @@ This can be understood as learning the direction of highest probability at each 
 Therefore, when the model is trained, we can improve a sample x
 by moving it along the directions of highest probability.
 """
+from pathlib import Path
 
 """
 In order to learn the score of the data distribution,
@@ -16,7 +17,6 @@ that takes as input a data point x and outputs the score Nabla_x log p(x).
 To train the neural network, we can minimize the expected squared error between the true score and the estimated score:
 """
 
-import numpy as np
 import torch
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
@@ -27,9 +27,11 @@ from losses import score_matching
 from utils import get_device, ensure_fig_dir, plot_all_trajectories, plot_gradients
 from sampling import sample_simple
 
+FIG_DIR = Path("./figures_score_matching")
+
 def main():
-    ensure_fig_dir()
-    plot_swiss_roll()
+    ensure_fig_dir(FIG_DIR)
+    plot_swiss_roll(fpath=str(FIG_DIR / "swiss_roll.png"))
 
     # Hyperparameters
     input_dim = 2
@@ -65,7 +67,7 @@ def main():
         print(f"Epoch {t}: loss = {loss.item():.4f}")
 
     # Visualizations
-    plot_gradients(model, data, device, "./figures/gradients.png")
+    plot_gradients(model, data, device, str(FIG_DIR / "gradients.png"))
 
     # Simple gradient ascent sampling from one point
     x0 = torch.Tensor([1.5, -1.5]).to(device)
@@ -86,7 +88,7 @@ def main():
         data,
         starting_points,
         device,
-        "./figures/dynamics_simple_all.png",
+        str(FIG_DIR / "dynamics_simple_all.png"),
         fn_run_sampling=sample_simple,
     )
 
