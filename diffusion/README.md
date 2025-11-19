@@ -115,3 +115,25 @@ This will generate:
 - **Loss**: MSE between predicted and true noise
 - **Description**: Predicts the noise added during diffusion (most common formulation)
 
+## Results
+
+The following results demonstrate the DDPM noise prediction model's ability to accurately sample from the 2D Swiss roll dataset after training for 96,000 epochs. The model successfully learns the complex spiral structure of the data distribution.
+
+### Sampling Trajectory
+
+The denoising process starts from pure Gaussian noise (far right) and progressively removes noise over 50 timesteps, gradually revealing the Swiss roll structure until producing clean samples (far left).
+
+![Sampling Trajectory](readme_figures/epoch_96000_ddpm_mean_sampling_trajectory.png)
+
+### Sample Quality
+
+Generated samples (orange) closely match the real data distribution (blue), demonstrating that the model has successfully learned to generate realistic 2D Swiss roll patterns.
+
+![Sample Quality](readme_figures/epoch_96000_sample_quality.png)
+
+### Model Predictions
+
+Analysis of the model's predictions across different noise levels and spatial regions, showing the learned mean and variance of the denoising distribution.
+
+![Model Predictions](readme_figures/epoch_96000_model_predictions_epoch.png)
+
